@@ -104,7 +104,7 @@
 
   <h1>과감하게 한판 승부!</h1>
   <div class="character-selection" id="characterSelection">
-    <div class="character-option" onclick="selectCharacter('r1.gif', 'player1Image', 'confirmButton1', this)">
+	<div class="character-option" onclick="selectCharacter('r1.gif', 'player1Image', 'confirmButton1', this)">
       <img src="r1.gif" alt="정신공격자" class="character-image">
       <p>정신공격자</p>
       <center><button id="confirmButton1" class="confirm-button" onclick="confirmCharacter('r1.gif', 'characterSelection', 'opponentSelection', 'confirmButton1')">확정</button>
@@ -118,13 +118,13 @@
       <img src="r3.gif" alt="조류" class="character-image">
       <p>조류</p>
       <center><button id="confirmButton3" class="confirm-button" onclick="confirmCharacter('r3.gif', 'characterSelection', 'opponentSelection', 'confirmButton3')">확정</button>
-    </div>
+    </div> 
     <div class="character-option" onclick="selectCharacter('r4.gif', 'player1Image', 'confirmButton4', this)">
       <img src="r4.gif" alt="다람이" class="character-image">
       <p>다람이</p>
       <center><button id="confirmButton4" class="confirm-button" onclick="confirmCharacter('r4.gif', 'characterSelection', 'opponentSelection', 'confirmButton4')">확정</button>
-    </div>리온의 캐릭터를 선택하세요.
-  </div>
+</div>
+  </div>리온 캐릭터 선택하기
 
   <div class="character-selection" id="opponentSelection" style="visibility: hidden;">
     <div class="character-option" onclick="selectCharacter('r5.gif', 'player2Image', 'confirmButton5', this)">
@@ -146,11 +146,11 @@
       <img src="r8.gif" alt="다람이" class="character-image">
       <p>다람이</p>
       <center><button id="confirmButton8" class="confirm-button" onclick="confirmCharacter('r8.gif', 'opponentSelection', 'playerContainer', 'confirmButton8')">확정</button>
-    </div>도전자의 캐릭터를 선택하세요.
-  </div>
- <button id="fightButton" onclick="startGame()">FIGHT!</button>
-  <div id="result"></div>
-  <div class="player-container" id="playerContainer" style="visibility: hidden;">
+    </div>
+  </div>도전자 캐릭터 선택하기
+  
+ <P><button id="fightButton" onclick="startGame()">FIGHT!</button>
+   <div class="player-container" id="playerContainer" style="visibility: hidden;">
     <div id="player1" class="player">
       <img src="" alt="리온" class="character-image" id="player1Image">
       <div class="health-bar-container">
@@ -164,9 +164,9 @@
         <div class="health-bar" id="healthBar2"></div>
       </div>
       <p>도전자</p>
-    </div>
+    </div> 
   </div>
-
+<div id="result"></div>
  
 
  
