@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>리액션 카드</title>
+    <style>
+        /* 스타일링 부분 */
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            margin: 0;
+            padding: 0;
+        }
+        #header-image {
+            width: 250px; /* 원하는 가로 크기로 설정 */
+            height: 50px; /* 원하는 세로 크기로 설정 */
+        }
+        #game-container {
+		     background-color: rgba(0, 0, 0, 0);/* 배경색 지정 마지막이 알파값 */
+			 background-size: cover;
+            background-position: center;
+            display: flex;
+            flex-wrap: wrap;
+            max-width: 400px; /* 가로 4칸을 기준으로 가운데 정렬 */
+            margin: 10px auto;
+            justify-content: center; /* 가운데 정렬을 위해 추가 */
+            padding: 10px;
+        }
+        /* 버튼에 대한 스타일 추가 */
+        #buttons-container {
+            display: flex;
+            justify-content: space-around;
+            margin-top: 0px;
+        }
+
+        #reset-button, #unlock-button {
+            padding: 5px;
+            font-size: 18px;
+            cursor: pointer;
+        }
+        .card {
+            width: 90px;
+            height: 140px; /* 높이를 더 높게 조정 */
+            margin: 5px;
+            cursor: pointer;
+            position: relative; /* 부모 기준으로 자식의 크기 조절을 위해 추가 */
+            perspective: 1000px; /* 3D 효과를 위한 perspective 추가 */
+											  transform: scaleX(-1);
+
+        }
+
+        .card .face {
+            width: 100%;
+            height: 100%;
+            position: absolute; /* 상대 위치 설정을 위해 추가 */
+            backface-visibility: hidden; /* 뒷면 가리기 */
+            transition: transform 0.8s; /* 회전 애니메이션 추가 */
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+
+        }
+
+        .card.flipped .face {
+           transform: rotateY(180deg); /* 뒤집혔을 때 180도 회전하여 보이게 하기 */
+
+
+        }
+
+        .card .front {
+            transform: rotateY(0deg); /* 앞면 초기에는 0도 회전하여 보이게 하기 */
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+								  transform: scaleX(-1);
+        }
+
+        .card .front img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 이미지가 카드 크기에 맞게 보이도록 설정 */
+            object-position: center; /* 이미지를 가운데 정렬하기 */
+            backface-visibility: hidden; /* 앞면 가리기 */
+			border-radius: 5px; /* 이미지를 라운드한 네모모양으로 표시하기 */
+
+        }
+
+        .card.flipped .front img {
+            transform: rotateY(0deg); /* 뒤집혔을 때 180도 회전하여 보이게 하기 */
+
+
+        }
+
+        .card .back {
+            transform: rotateY(180deg); /* 뒷면 초기에는 0도 회전하여 보이게 하기 */
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+
+        }
+
+        .card .back img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover; /* 이미지가 카드 크기에 맞게 보이도록 설정 */
+            object-position: center; /* 이미지를 가운데 정렬하기 */
+            backface-visibility: hidden; /* 뒷면 가리기 */
+            transform: rotateY(180deg); /* 초기에는 180도 회전하여 감추기 */
+            transition: transform 0.8s; /* 회전 애니메이션 추가 */
+			border-radius: 5px; /* 이미지를 라운드한 네모모양으로 표시하기 */
+
+        }
+
+        .card.flipped .back img {
+            transform: rotateY(0deg); /* 뒤집혔을 때 0도 회전하여 보이게 하기 */
+
+        }
+
+        #move-counter {
+            font-size: 18px;
+            margin-top: 10px;
+        }
+
+        h1 {
+            margin-top: 0;
+            font-size: 24px;
+            color: #fff; /* 제목 텍스트 색상 설정 */
+            text-align: center;
+        }
+    </style>
+</head>
+<body>
+    <div id="game-container" class="game-container"></div>
+
+   <div id="buttons-container">
+        <button id="reset-button" onclick="resetGame()">초기화(125)</button>&nbsp&nbsp&nbsp&nbsp
+        <button id="unlock-button" onclick="unlockCards()">락해제(1425)</button>
+    </div>
+
+    <div id="move-counter">시도 횟수: 0</div>
+
+    <audio id="flip-audio">
+        <source src="flip.mp3" type="audio/mp3">
+        Your browser does not support the audio tag.
+    </audio>
+
+    <audio id="fail-audio">
+        <source src="fail.mp3" type="audio/mp3">
+        Your browser does not support the audio tag.
+    </audio>
+
+    <audio id="yes-audio">
+        <source src="yes.mp3" type="audio/mp3">
+        Your browser does not support the audio tag.
+    </audio>
+
+    <script>
+        // JavaScript 부분
+        const images = ['image1.png', 'image2.png', 'image3.png', 'image4.png', 'image5.png', 'image6.png'];
+        const shuffledImages = [...images, ...images].sort(() => Math.random() - 0.5);
+        let selectedCards = [];
+        let moves = 0;
+        let matches = 0;
+
+        function playFlipSound() {
+            const flipAudio = document.getElementById('flip-audio');
+            flipAudio.currentTime = 0; // 재생 위치 초기화
+            flipAudio.play();
+        }
+
+        function playFailSound() {
+            const failAudio = document.getElementById('fail-audio');
+            failAudio.currentTime = 0;
+            failAudio.play();
+        }
+
+        function playYesSound() {
+            const yesAudio = document.getElementById('yes-audio');
+            yesAudio.currentTime = 0;
+            yesAudio.play();
+        }
+
+
+        function createCard(image, index) {
+            const card = document.createElement('div');
+            card.className = 'card';
+            card.dataset.image = image;
+            card.dataset.index = index;
+            card.addEventListener('click', flipCard);
+
+            const front = document.createElement('div');
+            front.className = 'face front';
+            const frontImage = document.createElement('img');
+            frontImage.src = 'back.png'; // 뒷면 이미지 경로 설정
+            frontImage.alt = 'Back Image';
+            front.appendChild(frontImage);
+            card.appendChild(front);
+
+            const back = document.createElement('div');
+            back.className = 'face back';
+            const backImage = document.createElement('img');
+            backImage.src = image;
+            backImage.alt = 'Card Image';
+            back.appendChild(backImage);
+            card.appendChild(back);
+
+            return card;
+        }
+
+function flipCard() {
+    const moveCounter = document.getElementById('move-counter');
+
+    if (selectedCards.length < 2 && !this.classList.contains('flipped')) {
+        // 시도 횟수가 5의 배수이고, 0보다 크며 잠긴 상태가 아닌 경우에만 뒤집을 수 있도록 함
+        if (moves % 4 === 0 && moves > 0 && !this.classList.contains('locked')) {
+            moveCounter.innerText = `잠금 상태 - 시도 횟수: ${moves}`;
+            return;
+        }
+
+        this.classList.add('flipped');
+        selectedCards.push(this);
+        playFlipSound(); // 효과음 재생
+
+        if (selectedCards.length === 2) {
+            setTimeout(checkMatch, 500);
+            moves++;
+            updateMoves();
+        }
+    }
+}
+function unlockCards() {
+    const moveCounter = document.getElementById('move-counter');
+
+    // Check if the moves are a multiple of 5 and greater than 0
+    if (moves % 4 === 0 && moves > 0) {
+        // Reset the moves to 0 and unlock the cards
+        moves = 0;
+        document.querySelectorAll('.card').forEach(card => card.classList.remove('locked'));
+        moveCounter.innerText = `락해제 - 시도 횟수: ${moves}`;
+    }
+}
+
+
+        function checkMatch() {
+            const [card1, card2] = selectedCards;
+            const image1 = card1.dataset.image;
+            const image2 = card2.dataset.image;
+
+            if (image1 === image2) {
+                // 매치 성공
+                matches++;
+				playYesSound(); // 성공 효과음 재생
+                if (matches === images.length) {
+                    alert(`축하합니다! 모든 그림을 맞췄습니다. ${moves}번의 시도가 걸렸습니다.`);
+                }
+            } else {
+                // 매치 실패
+				playFailSound(); // 실패 효과음 재생
+                selectedCards.forEach(card => card.classList.remove('flipped'));
+            }
+
+            selectedCards = [];
+        }
+
+        function updateMoves() {
+            document.getElementById('move-counter').innerText = `시도 횟수: ${moves}`;
+        }
+
+        function initializeGame() {
+            const gameContainer = document.getElementById('game-container');
+
+            shuffledImages.forEach((image, index) => {
+                const card = createCard(image, index);
+                gameContainer.appendChild(card);
+            });
+        }
+function resetGame() {
+    document.getElementById('game-container').innerHTML = '';
+    moves = 0;
+    matches = 0;
+    selectedCards = [];
+    shuffledImages.sort(() => Math.random() - 0.5); // 배열을 다시 섞음
+    initializeGame();
+    updateMoves();
+}        initializeGame();
+    </script>
+</body>
+</html>
