@@ -31,13 +31,15 @@
         /* 버튼에 대한 스타일 추가 */
         #buttons-container {
             display: flex;
+            width: 600px;
             justify-content: space-around;
             margin-top: 0px;
+
         }
 
-        #reset-button, #unlock-button {
-            padding: 5px;
-            font-size: 18px;
+        #reset-button, #auto-match-button, #yes-match-button, #all-button, #cancel-button   {
+            padding: 10px;
+            font-size: 19px;
             cursor: pointer;
         }
         .card {
@@ -146,6 +148,11 @@
 
    <div id="buttons-container">
         <button id="reset-button" onclick="resetGame()">초기화</button>
+        <button id="auto-match-button" onclick="autoMatch()">1회 자동</button>
+        <button id="yes-match-button" onclick="yesMatch()">1회 정답</button>
+        <button id="all-button" onclick="allMatch()">전부보기</button>
+		<button id="cancel-button" onclick="cancelAllMatch()">보기취소</button>
+
     </div>
 
     <audio id="flip-audio">
@@ -164,6 +171,34 @@
     </audio>
 
     <script>
+
+
+let cancelBtn = document.getElementById("cancel-button");
+let allBtn = document.getElementById("all-button");
+
+function enableCancelBtn() {
+    cancelBtn.disabled = false;
+}
+
+function disableCancelBtn() {
+    cancelBtn.disabled = true;
+}
+
+function activateCancelBtn() {
+    enableCancelBtn();
+    allBtn.removeEventListener("click", activateCancelBtn);
+    cancelBtn.addEventListener("click", deactivateCancelBtn);
+}
+
+function deactivateCancelBtn() {
+    disableCancelBtn();
+    allBtn.addEventListener("click", activateCancelBtn);
+    cancelBtn.removeEventListener("click", deactivateCancelBtn);
+}
+
+disableCancelBtn();
+allBtn.addEventListener("click", activateCancelBtn);
+
         // JavaScript 부분
         const images = ['image1.png', 'image2.png', 'image3.png', 'image4.png', 'image5.png', 'image6.png', 'image7.png', 'image8.png', 'image9.png', 'image10.png', 'image11.png', 'image12.png', 'image13.png', 'image14.png', 'image15.png', 'image16.png', 'image17.png', 'image18.png', 'image19.png', 'image20.png', 'image21.png', 'image22.png', 'image23.png', 'image24.png', 'image25.png', 'image26.png', 'image27.png', 'image28.png'];
         const shuffledImages = [...images, ...images].sort(() => Math.random() - 0.5);
@@ -275,7 +310,126 @@ function resetGame() {
     shuffledImages.sort(() => Math.random() - 0.5); // 배열을 다시 섞음
     initializeGame();
     updateMoves();
-}        initializeGame();
+}
+
+let flippedCardsSnapshot = []; // 뒤집힌 카드들의 상태를 저장할 배열
+let allMatchTimeout; // 타임아웃을 저장할 변수 추가
+let allMatchExecuted = false;
+
+function allMatch() {
+    if (allMatchExecuted) {
+        // 이미 실행된 경우 무시
+        return;
+    }
+
+    // 현재 타임아웃이 실행 중이라면 종료
+    clearTimeout(allMatchTimeout);
+
+    // 현재까지의 뒤집힌 카드 상태를 기억
+    flippedCardsSnapshot = Array.from(document.querySelectorAll('.card.flipped:not(.matched)'));
+    
+    const unmatchedFrontCards = document.querySelectorAll('.card:not(.flipped.matched)');
+
+    if (unmatchedFrontCards.length >= 2) {
+        // 선택된 두 카드를 뒤집음
+        unmatchedFrontCards.forEach(card => {
+            card.classList.add('flipped');
+            playFlipSound();
+        });
+
+        allMatchTimeout = setTimeout(() => {
+            checkMatch();
+            moves++;
+            updateMoves();
+            flippedCardsSnapshot = []; // 기억한 상태 초기화
+            allMatchExecuted = true; // 다음 호출을 허용하지 않음
+        }, 500);
+    }
+}
+
+function cancelAllMatch() {
+    // 현재 타임아웃이 실행 중이라면 종료
+    clearTimeout(allMatchTimeout);
+
+    // 모든 카드의 flipped 상태를 반대로 되돌림
+    document.querySelectorAll('.card:not(.matched)').forEach(card => {
+        if (!flippedCardsSnapshot.includes(card)) {
+            // flippedCardsSnapshot에 해당하는 카드가 아닌 경우에만 적용
+            card.classList.toggle('flipped', !card.classList.contains('flipped'));
+        }
+        card.classList.remove('matched');
+    });
+
+    selectedCards = [];
+    moves--;
+    updateMoves();
+    flippedCardsSnapshot = []; // 기억한 상태 초기화
+    allMatchExecuted = false; // 다음 호출을 허용
+}
+
+
+
+
+
+
+
+function autoMatch() {
+    const unmatchedFrontCards = document.querySelectorAll('.card:not(.flipped)');
+
+    if (unmatchedFrontCards.length >= 2) {
+        const randomIndex1 = Math.floor(Math.random() * unmatchedFrontCards.length);
+        let randomIndex2 = randomIndex1;
+
+        // 두 번째 랜덤 인덱스가 첫 번째와 다를 때까지 계속 선택
+        while (randomIndex2 === randomIndex1) {
+            randomIndex2 = Math.floor(Math.random() * unmatchedFrontCards.length);
+        }
+
+        const card1 = unmatchedFrontCards[randomIndex1];
+        const card2 = unmatchedFrontCards[randomIndex2];
+
+        // 선택된 두 카드를 뒤집음 (flipCard 함수를 호출하여 동일한 동작 수행)
+        flipCard.call(card1);
+        flipCard.call(card2);
+
+        moves++;
+        updateMoves();
+    }
+}
+
+
+
+function yesMatch() {
+    const unmatchedFrontCards = document.querySelectorAll('.card:not(.flipped.matched)');
+
+    if (unmatchedFrontCards.length >= 2) {
+        const randomImage = getRandomUnflippedImage(unmatchedFrontCards);
+
+        const card1 = Array.from(unmatchedFrontCards).find(card => card.dataset.image === randomImage);
+        const card2 = Array.from(unmatchedFrontCards).find(card => card.dataset.image === randomImage && card !== card1);
+
+        // 선택된 두 카드를 뒤집음 (flipCard 함수를 호출하여 동일한 동작 수행)
+        flipCard.call(card1);
+        flipCard.call(card2);
+
+        moves++;
+        updateMoves();
+    }
+}
+
+function getRandomUnflippedImage(cards) {
+    const unflippedImages = Array.from(cards)
+        .filter(card => !card.classList.contains('flipped'))
+        .map(card => card.dataset.image);
+
+    const randomIndex = Math.floor(Math.random() * unflippedImages.length);
+    return unflippedImages[randomIndex];
+}
+
+
+initializeGame();
+
+
     </script>
 </body>
 </html>
