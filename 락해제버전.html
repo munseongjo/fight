@@ -23,7 +23,7 @@
             background-position: center;
             display: flex;
             flex-wrap: wrap;
-            max-width: 1400px; /* 가로 6칸을 기준으로 가운데 정렬 */
+            max-width: 600px; /* 가로 4칸을 기준으로 가운데 정렬 */
             margin: 10px auto;
             justify-content: center; /* 가운데 정렬을 위해 추가 */
             padding: 10px;
@@ -145,8 +145,11 @@
     <div id="game-container" class="game-container"></div>
 
    <div id="buttons-container">
-        <button id="reset-button" onclick="resetGame()">초기화</button>
+        <button id="reset-button" onclick="resetGame()">초기화(125)</button>&nbsp&nbsp&nbsp&nbsp
+      <button id="unlock-button" onclick="unlockCards()">락해제(1425)</button>
     </div>
+
+    <div id="move-counter">시도 횟수: 0</div>
 
     <audio id="flip-audio">
         <source src="flip.mp3" type="audio/mp3">
@@ -165,7 +168,7 @@
 
     <script>
         // JavaScript 부분
-        const images = ['image1.png', 'image2.png', 'image3.png', 'image4.png', 'image5.png', 'image6.png', 'image7.png', 'image8.png', 'image9.png', 'image10.png', 'image11.png', 'image12.png', 'image13.png', 'image14.png', 'image15.png', 'image16.png', 'image17.png', 'image18.png', 'image19.png', 'image20.png', 'image21.png', 'image22.png', 'image23.png', 'image24.png', 'image25.png', 'image26.png', 'image27.png', 'image28.png'];
+        const images = ['image1.png', 'image2.png', 'image3.png', 'image4.png', 'image5.png', 'image6.png'];
         const shuffledImages = [...images, ...images].sort(() => Math.random() - 0.5);
         let selectedCards = [];
         let moves = 0;
@@ -198,10 +201,9 @@
             card.addEventListener('click', flipCard);
 
             const front = document.createElement('div');
-			front.className = 'face front';
+            front.className = 'face front';
             const frontImage = document.createElement('img');
-		    const frontImageIndex = (index % 56) + 1; // 뒷면 이미지의 인덱스 계산 (1부터 16까지)
-            frontImage.src = `back${frontImageIndex}.png`; // 인덱스를 기반으로 뒷면 이미지 설정
+            frontImage.src = 'back.png'; // 뒷면 이미지 경로 설정
             frontImage.alt = 'Back Image';
             front.appendChild(frontImage);
             card.appendChild(front);
@@ -221,6 +223,11 @@ function flipCard() {
     const moveCounter = document.getElementById('move-counter');
 
     if (selectedCards.length < 2 && !this.classList.contains('flipped')) {
+        // 시도 횟수가 5의 배수이고, 0보다 크며 잠긴 상태가 아닌 경우에만 뒤집을 수 있도록 함
+        if (moves % 4 === 0 && moves > 0 && !this.classList.contains('locked')) {
+            moveCounter.innerText = `잠금 상태 - 시도 횟수: ${moves}`;
+            return;
+        }
 
         this.classList.add('flipped');
         selectedCards.push(this);
@@ -233,6 +240,18 @@ function flipCard() {
         }
     }
 }
+function unlockCards() {
+    const moveCounter = document.getElementById('move-counter');
+
+    // Check if the moves are a multiple of 5 and greater than 0
+    if (moves % 4 === 0 && moves > 0) {
+        // Reset the moves to 0 and unlock the cards
+        moves = 0;
+        document.querySelectorAll('.card').forEach(card => card.classList.remove('locked'));
+        moveCounter.innerText = `락해제 - 시도 횟수: ${moves}`;
+    }
+}
+
 
         function checkMatch() {
             const [card1, card2] = selectedCards;
