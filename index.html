@@ -14,8 +14,8 @@
             padding: 0;
         }
         #header-image {
-            width: 250px; /* 원하는 가로 크기로 설정 */
-            height: 50px; /* 원하는 세로 크기로 설정 */
+            width: 520px; /* 원하는 가로 크기로 설정 */
+            height: 48px; /* 원하는 세로 크기로 설정 */
         }
         #mother {
 		    background-color: rgba(0, 0, 0, 0);/* 배경색 지정 마지막이 알파값 */
@@ -32,7 +32,7 @@
             display: grid;
 		    grid-template-columns: repeat(5, 1fr);
             flex-wrap: wrap;
-            margin: 10px auto;
+            margin: -15px auto;
             justify-content: center; /* 가운데 정렬을 위해 추가 */
             padding: 10px;
         }
@@ -178,6 +178,7 @@
     </style>
 </head>
 <body>
+<div id="header" class="header"><img src="head.png"></div>
 <div id="mother" class="mother">
 	<div id="game-container" class="game-container"></div>
     <div id="buttons-container">
