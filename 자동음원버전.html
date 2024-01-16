@@ -282,16 +282,39 @@ function flipCard() {
     }
 }
 
+let matchSoundPromise; // 전역으로 선언
+
+function playMatchSound(src) {
+    return new Promise((resolve, reject) => {
+        const sound = new Audio(src);
+        sound.addEventListener('ended', () => {
+            sound.currentTime = 0;
+            resolve(); // 재생이 끝나면 Promise를 해결(resolve)합니다.
+        });
+        sound.play();
+    });
+}
+
         function checkMatch() {
             const [card1, card2] = selectedCards;
             const image1 = card1.dataset.image;
             const image2 = card2.dataset.image;
 
-           if (image1 === image2) {
+            if (image1 === image2) {
                 // 매치 성공
                 matches++;
-				playYesSound(); // 성공 효과음 재생
-                if (matches === images.length) {
+//				playYesSound(); // 성공 효과음 재생
+
+       const soundSrc = `${image1.replace(".png", "")}.mp3`;
+
+        // 이전 matchSoundPromise가 완료될 때까지 대기하고 새로운 소리를 재생합니다.
+        if (matchSoundPromise) {
+            matchSoundPromise = matchSoundPromise.then(() => playMatchSound(soundSrc));
+        } else {
+            matchSoundPromise = playMatchSound(soundSrc);
+        }
+	
+		if (matches === images.length) {
                     alert(`축하합니다! 모든 그림을 맞췄습니다. ${moves}번의 시도가 걸렸습니다.`);
                 }
             } else {

@@ -17,61 +17,30 @@
             width: 250px; /* 원하는 가로 크기로 설정 */
             height: 50px; /* 원하는 세로 크기로 설정 */
         }
-        #mother {
-		    background-color: rgba(0, 0, 0, 0);/* 배경색 지정 마지막이 알파값 */
-			background-size: cover;
-            background-position: center;
-            display: grid;
-        }
-
         #game-container {
-		    background-color: rgba(0, 0, 0, 0);/* 배경색 지정 마지막이 알파값 */
-			background-size: cover;
+		     background-color: rgba(0, 0, 0, 0);/* 배경색 지정 마지막이 알파값 */
+			 background-size: cover;
             background-position: center;
-
-            display: grid;
-		    grid-template-columns: repeat(5, 1fr);
+            display: flex;
             flex-wrap: wrap;
+            max-width: 1400px; /* 가로 6칸을 기준으로 가운데 정렬 */
             margin: 10px auto;
             justify-content: center; /* 가운데 정렬을 위해 추가 */
             padding: 10px;
         }
         /* 버튼에 대한 스타일 추가 */
         #buttons-container {
-            display: grid;
-		    grid-template-columns: repeat(1, 1fr);
-			grid-column: 6;
-            margin: 10px auto;
-            justify-content: center; /* 가운데 정렬을 위해 추가 */
-            padding: 10px;
+            display: flex;
+            width: 600px;
+            justify-content: space-around;
+            margin-top: 0px;
 
-			
         }
-#flip-button {
-    background: none; /* 배경 제거 */
-    border: none; /* 테두리 제거 */
-    cursor: pointer;
-    padding: 0; /* 내부 여백 제거 */
-}
 
-#flip-button img {
-    width: 30px; /* 이미지의 원하는 너비로 설정 */
-    height: 50px; /* 이미지의 원하는 높이로 설정 */
-
-}
-
-		#flip-button:hover img { /* 마우스 오버시 색반전 */
-		    filter: brightness(110%);
-		}
-
-        #reset-button {
+        #reset-button, #auto-match-button, #yes-match-button, #all-button, #cancel-button   {
             padding: 10px;
             font-size: 19px;
             cursor: pointer;
-			padding-top: 0px;
-			padding-bottom: 0px;
-			padding-left: 0px;
-			width: 324px
         }
         .card {
             width: 90px;
@@ -124,9 +93,6 @@
 			border-radius: 5px; /* 이미지를 라운드한 네모모양으로 표시하기 */
 
         }
-		.card:hover .front img { /* 마우스 오버시 색반전 */
-		    filter: invert(20%);
-		}
 
         .card.flipped .front img {
             transform: rotateY(0deg); /* 뒤집혔을 때 180도 회전하여 보이게 하기 */
@@ -178,19 +144,16 @@
     </style>
 </head>
 <body>
-<div id="mother" class="mother">
-	<div id="game-container" class="game-container"></div>
-    <div id="buttons-container">
-        <button id="flip-button" onclick="flipFiveCells(1)"><img src="hint.png" alt="Flip Button"></button>
-        <button id="flip-button" onclick="flipFiveCells(6)"><img src="hint.png" alt="Flip Button"></button>
-        <button id="flip-button" onclick="flipFiveCells(11)"><img src="hint.png" alt="Flip Button"></button>
-        <button id="flip-button" onclick="flipFiveCells(16)"><img src="hint.png" alt="Flip Button"></button>
-        <button id="flip-button" onclick="flipFiveCells(21)"><img src="hint.png" alt="Flip Button"></button>
-        <button id="flip-button" onclick="flipFiveCells(26)"><img src="hint.png" alt="Flip Button"></button>
-    </div>
-			 <center>       <button id="reset-button" onclick="resetGame()">초기화</button>
-	</div>
+    <div id="game-container" class="game-container"></div>
 
+   <div id="buttons-container">
+        <button id="reset-button" onclick="resetGame()">초기화</button>
+        <button id="auto-match-button" onclick="autoMatch()">1회 자동</button>
+        <button id="yes-match-button" onclick="yesMatch()">1회 정답</button>
+        <button id="all-button" onclick="allMatch()">전부보기</button>
+		<button id="cancel-button" onclick="cancelAllMatch()">보기취소</button>
+
+    </div>
 
     <audio id="flip-audio">
         <source src="flip.mp3" type="audio/mp3">
@@ -210,10 +173,34 @@
     <script>
 
 
+let cancelBtn = document.getElementById("cancel-button");
+let allBtn = document.getElementById("all-button");
 
+function enableCancelBtn() {
+    cancelBtn.disabled = false;
+}
+
+function disableCancelBtn() {
+    cancelBtn.disabled = true;
+}
+
+function activateCancelBtn() {
+    enableCancelBtn();
+    allBtn.removeEventListener("click", activateCancelBtn);
+    cancelBtn.addEventListener("click", deactivateCancelBtn);
+}
+
+function deactivateCancelBtn() {
+    disableCancelBtn();
+    allBtn.addEventListener("click", activateCancelBtn);
+    cancelBtn.removeEventListener("click", deactivateCancelBtn);
+}
+
+disableCancelBtn();
+allBtn.addEventListener("click", activateCancelBtn);
 
         // JavaScript 부분
-        const images = ['image1.png', 'image2.png', 'image3.png', 'image4.png', 'image5.png', 'image6.png', 'image7.png', 'image8.png', 'image9.png', 'image10.png', 'image11.png', 'image12.png', 'image13.png', 'image14.png', 'image15.png'];
+        const images = ['image1.png', 'image2.png', 'image3.png', 'image4.png', 'image5.png', 'image6.png', 'image7.png', 'image8.png', 'image9.png', 'image10.png', 'image11.png', 'image12.png', 'image13.png', 'image14.png', 'image15.png', 'image16.png', 'image17.png', 'image18.png', 'image19.png', 'image20.png', 'image21.png', 'image22.png', 'image23.png', 'image24.png', 'image25.png', 'image26.png', 'image27.png', 'image28.png'];
         const shuffledImages = [...images, ...images].sort(() => Math.random() - 0.5);
         let selectedCards = [];
         let moves = 0;
@@ -287,7 +274,7 @@ function flipCard() {
             const image1 = card1.dataset.image;
             const image2 = card2.dataset.image;
 
-           if (image1 === image2) {
+            if (image1 === image2) {
                 // 매치 성공
                 matches++;
 				playYesSound(); // 성공 효과음 재생
@@ -324,6 +311,64 @@ function resetGame() {
     initializeGame();
     updateMoves();
 }
+
+let flippedCardsSnapshot = []; // 뒤집힌 카드들의 상태를 저장할 배열
+let allMatchTimeout; // 타임아웃을 저장할 변수 추가
+let allMatchExecuted = false;
+
+function allMatch() {
+    if (allMatchExecuted) {
+        // 이미 실행된 경우 무시
+        return;
+    }
+
+    // 현재 타임아웃이 실행 중이라면 종료
+    clearTimeout(allMatchTimeout);
+
+    // 현재까지의 뒤집힌 카드 상태를 기억
+    flippedCardsSnapshot = Array.from(document.querySelectorAll('.card.flipped:not(.matched)'));
+    
+    const unmatchedFrontCards = document.querySelectorAll('.card:not(.flipped.matched)');
+
+    if (unmatchedFrontCards.length >= 2) {
+        // 선택된 두 카드를 뒤집음
+        unmatchedFrontCards.forEach(card => {
+            card.classList.add('flipped');
+            playFlipSound();
+        });
+
+        allMatchTimeout = setTimeout(() => {
+            checkMatch();
+            moves++;
+            updateMoves();
+            flippedCardsSnapshot = []; // 기억한 상태 초기화
+            allMatchExecuted = true; // 다음 호출을 허용하지 않음
+        }, 500);
+    }
+}
+
+function cancelAllMatch() {
+    // 현재 타임아웃이 실행 중이라면 종료
+    clearTimeout(allMatchTimeout);
+
+    // 모든 카드의 flipped 상태를 반대로 되돌림
+    document.querySelectorAll('.card:not(.matched)').forEach(card => {
+        if (!flippedCardsSnapshot.includes(card)) {
+            // flippedCardsSnapshot에 해당하는 카드가 아닌 경우에만 적용
+            card.classList.toggle('flipped', !card.classList.contains('flipped'));
+        }
+        card.classList.remove('matched');
+    });
+
+    selectedCards = [];
+    moves--;
+    updateMoves();
+    flippedCardsSnapshot = []; // 기억한 상태 초기화
+    allMatchExecuted = false; // 다음 호출을 허용
+}
+
+
+
 
 
 
@@ -372,36 +417,17 @@ function yesMatch() {
     }
 }
 
-        function flipFiveCells(startCell) {
-            const cards = document.querySelectorAll('.card');
-            const flippedCards = [];
+function getRandomUnflippedImage(cards) {
+    const unflippedImages = Array.from(cards)
+        .filter(card => !card.classList.contains('flipped'))
+        .map(card => card.dataset.image);
 
-            for (let i = 0; i < 5; i++) {
-                const cellIndex = startCell + i - 1;
-                const cardIndex = cellIndex >= 0 ? cellIndex % cards.length : cards.length + cellIndex;
-                const card = cards[cardIndex];
-
-                if (!card.classList.contains('flipped')) {
-                    setTimeout(() => {
-                        // 카드를 뒤집는 부분
-                        card.classList.add('flipped');
-                        flippedCards.push(card);
-                    }, i * 80); // i 초 간격으로 플립
-                }
-            }
-
-            setTimeout(() => {
-                flippedCards.forEach((card, i) => {
-                    setTimeout(() => {
-                        // 카드를 다시 원래대로 돌리는 부분
-                        card.classList.remove('flipped');
-                    }, i * 80); // i 초 간격으로 다시 플립
-                });
-            }, 1800); // 6초 후에 다시 원래대로 돌리기
+    const randomIndex = Math.floor(Math.random() * unflippedImages.length);
+    return unflippedImages[randomIndex];
+}
 
 
-        }
-		initializeGame();
+initializeGame();
 
 
     </script>
