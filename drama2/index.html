@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>드라마 퀴즈</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        iframe { width: 80%; max-width: 800px; height: 450px; display: block; margin: 20px auto; }
+        #controls { display: flex; justify-content: center; align-items: center; width: 80%; max-width: 800px; margin: 10px auto; }
+        #userAnswer { flex: 1; padding: 10px; font-size: 16px; }
+        .icon-button { background: none; border: none; cursor: pointer; margin: 0 10px; }
+        .icon-button img { width: 40px; height: 40px; }
+        #answerBox { font-size: 20px; margin-top: 10px; }
+        .correct { color: blue; }
+        .incorrect { color: red; }
+    </style>
+</head>
+<body>
+    <h1>드라마 명대사 완성하기</h1>
+    <iframe id="videoPlayer" src="" frameborder="0" allowfullscreen></iframe>
+    <div id="controls">
+        <button class="icon-button" onclick="prevVideo()">
+            <img src="prev.png" alt="이전">
+        </button>
+        <input type="text" id="userAnswer" placeholder="정답 입력">
+        <button class="icon-button" onclick="checkAnswer()">
+            <img src="check.png" alt="정답 확인">
+        </button>
+        <button class="icon-button" onclick="nextVideo()">
+            <img src="next.png" alt="다음">
+        </button>
+    </div>
+    <h2 id="answerBox">삐--- 소리에 들어갈 말은? </h2>
+    
+    <audio id="correctSound" src="correct.mp3"></audio>
+    <audio id="incorrectSound" src="incorrect.mp3"></audio>
+
+<script>
+    const videoFiles = [
+        { file: "https://drive.google.com/file/d/1Y8GXz4yYSgbOkQThp5ACQKmEzqIGTZ54/preview", description: "내 가치를 네가 정하지마!", answer: "가치", correctVideo: "https://drive.google.com/file/d/1pPH_nQ8frhAHHam_S5yOMiWmqzzbZJ5q/preview" },
+        { file: "https://drive.google.com/file/d/1hJ7igVLyki-ib5rgB9I_QQzw-BSwvO45/preview", description: "넌 뭐 개쓰레기 색기냐?", answer: "개쓰레기", correctVideo: "https://drive.google.com/file/d/1BtWJCZO-R34QuaTyUZpGlyVKyr1IMCzD/preview" },
+        { file: "https://drive.google.com/file/d/12R0Q7jpB-ND1con7DCHEJ5WiBpEDdo4S/preview", description: "무슨 일이 벌어져도 니 잘못이 아니다.", answer: "니 잘못이", correctVideo: "https://drive.google.com/file/d/1ra4yeZzaII0ec6cvKp-sHRtRdXrUkYOV/preview" },
+        { file: "https://drive.google.com/file/d/1z9NRUMxnnj1B5I0U4yTlOq3vSGHd1n1J/preview", description: "너는 봄날의 햇살같아", answer: "봄날의 햇살", correctVideo: "https://drive.google.com/file/d/1IwBHqDCz7sq91QKWRW5-RRniXLVk5tBM/preview" },
+        { file: "https://drive.google.com/file/d/1WLrTCVdkiC9jCLIUqys8ZhSUYmP7k3gZ/preview", description: "온 힘을 다해 지금하고 있는 사랑입니다.", answer: "사랑", correctVideo: "https://drive.google.com/file/d/1sMo92FvIwn8Z0RGbY-_xxkyniOJddGVs/preview" },
+        { file: "https://drive.google.com/file/d/1PYvoNCYK5BnqeNETMW8ckifRI8flJBbA/preview", description: "내 심장은 열 배 스무 배 더 아퍼", answer: "심장은", correctVideo: "https://drive.google.com/file/d/117muLTovbWZc3chl2N1_nSyQ5U-aX9Lm/preview" },
+        { file: "https://drive.google.com/file/d/1uk0o8mYbB1CvFsOt1mgfLwuP9Vq-PvxA/preview", description: "우린 적들에게 자비롭지 않아~", answer: "자비롭지", correctVideo: "https://drive.google.com/file/d/15bjrSz-xxnTTM3O_NemfP4AyEwIPbj2-/preview" },
+        { file: "https://drive.google.com/file/d/1cnle69swU0pJlgufXb1xJiaI5epPrQqZ/preview", description: "제가 원하는 건 자유입니다.", answer: "자유", correctVideo: "https://drive.google.com/file/d/1STxmrr7fvDb3mefp-8rkY4hj4SiQrZpj/preview" },
+        { file: "https://drive.google.com/file/d/1L-CaCebFt1fyGysAsp6A08809_u-vmR1/preview", description: "ㅈ도 없이 흐물거리던 해파리 샛기", answer: "해파리", correctVideo: "https://drive.google.com/file/d/1zelRp46d233v3fGgKud0X7tPtmvWxNsM/preview" },
+        { file: "https://drive.google.com/file/d/1zuQzZCrP1QTm-wYmny7XnkQZfzGLwNpN/preview", description: "야인시대 아님ㅋ", answer: "행복해지면", correctVideo: "https://drive.google.com/file/d/1zuQzZCrP1QTm-wYmny7XnkQZfzGLwNpN/preview" }
+    ];
+
+    let videoIndex = 0;
+
+    function loadVideo() {
+        document.getElementById("videoPlayer").src = videoFiles[videoIndex].file;
+        document.getElementById("answerBox").innerHTML = "삐- 소리에 들어갈 말은?";
+        document.getElementById("userAnswer").value = "";
+    }
+
+    function nextVideo() {
+        if (videoIndex < videoFiles.length - 1) {
+            videoIndex++;
+            loadVideo();
+        } else {
+            alert("마지막 영상입니다.");
+        }
+    }
+
+    function prevVideo() {
+        if (videoIndex > 0) {
+            videoIndex--;
+            loadVideo();
+        } else {
+            alert("첫 번째 영상입니다.");
+        }
+    }
+
+    function checkAnswer() {
+        // 사용자 입력에서 띄어쓰기를 제거하고 소문자로 변환
+        const userAnswer = document.getElementById("userAnswer").value.trim().replace(/\s+/g, '').toLowerCase();
+        
+        // 정답에서 띄어쓰기를 제거하고 소문자로 변환
+        const correctAnswer = videoFiles[videoIndex].answer.trim().replace(/\s+/g, '').toLowerCase();
+
+        // 정답 영상은 별도로 지정된 correctVideo 경로로 변경
+        document.getElementById("videoPlayer").src = videoFiles[videoIndex].correctVideo;
+        
+        // 정답과 사용자 입력 비교 후, description도 출력
+        if (userAnswer === correctAnswer) {
+            document.getElementById("answerBox").innerHTML = `정답! ${videoFiles[videoIndex].answer}<br>${videoFiles[videoIndex].description}`;
+            document.getElementById("answerBox").classList.add("correct");
+            document.getElementById("answerBox").classList.remove("incorrect");
+            document.getElementById("correctSound").play();
+        } else {
+            document.getElementById("answerBox").innerHTML = `땡! ${videoFiles[videoIndex].answer}<br>${videoFiles[videoIndex].description}`;
+            document.getElementById("answerBox").classList.add("incorrect");
+            document.getElementById("answerBox").classList.remove("correct");
+            document.getElementById("incorrectSound").play();
+        }
+    }
+
+    loadVideo();
+</script>
+</body>
+</html>
