@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>드라마 퀴즈</title>
+    <style>
+        body { text-align: center; font-family: Arial, sans-serif; }
+        iframe { width: 80%; max-width: 800px; height: 450px; display: block; margin: 20px auto; }
+        #controls { display: flex; justify-content: center; align-items: center; width: 80%; max-width: 800px; margin: 10px auto; }
+        #userAnswer { flex: 1; padding: 10px; font-size: 16px; }
+        .icon-button { background: none; border: none; cursor: pointer; margin: 0 10px; }
+        .icon-button img { width: 40px; height: 40px; }
+        #answerBox { font-size: 20px; margin-top: 10px; }
+        .correct { color: blue; }
+        .incorrect { color: red; }
+    </style>
+</head>
+<body>
+    <h1>명장면 보고 드라마 제목 맞추기</h1>
+    <iframe id="videoPlayer" src="" frameborder="0" allowfullscreen></iframe>
+    <div id="controls">
+        <button class="icon-button" onclick="prevVideo()">
+            <img src="prev.png" alt="이전">
+        </button>
+        <input type="text" id="userAnswer" placeholder="정답 입력">
+        <button class="icon-button" onclick="showAnswer()">
+            <img src="check.png" alt="정답 확인">
+        </button>
+        <button class="icon-button" onclick="nextVideo()">
+            <img src="next.png" alt="다음">
+        </button>
+    </div>
+    <h2 id="answerBox">정답: ??? </h2>
+    
+    <audio id="correctSound" src="correct.mp3"></audio>
+    <audio id="incorrectSound" src="incorrect.mp3"></audio>
+
+<script>
+    const videoFiles = [
+        { file: "https://drive.google.com/file/d/1_odHeqwwgE5fCeddETr4gyinV4hiiP2T/preview", description: "360도 회전 엔딩으로 유명한 드라마에요 > <" },
+        { file: "https://drive.google.com/file/d/0002/preview", description: "이렇게 하면 널 가질 수 있을거라고 생각했어!" },
+        { file: "https://drive.google.com/file/d/0003/preview", description: "사랑? 그거 이제 돈으로 사겠어" },
+        { file: "https://drive.google.com/file/d/0004/preview", description: "남이섬을 핫플로 만든 눈사람 키스신♥" },
+        { file: "https://drive.google.com/file/d/0005/preview", description: "이병헌 박 To the 력" },
+        { file: "https://drive.google.com/file/d/0006/preview", description: "엄마가 담배피지 말라고 그러지 않았니?" },
+        { file: "https://drive.google.com/file/d/0007/preview", description: "할미넴 등장!" },
+        { file: "https://drive.google.com/file/d/0008/preview", description: "이 바보야~" },
+        { file: "https://drive.google.com/file/d/0009/preview", description: "저희 문과잖습니까" },
+        { file: "https://drive.google.com/file/d/0010/preview", description: "야인시대 아님ㅋ" },
+        { file: "https://drive.google.com/file/d/0011/preview", description: "끝장을 내잔 말이다!!!" },
+        { file: "https://drive.google.com/file/d/0012/preview", description: "아 맛있다!" },
+        { file: "https://drive.google.com/file/d/0013/preview", description: "감히 내 앞에서 멀어지지마라. 어명이다." },
+        { file: "https://drive.google.com/file/d/0014/preview", description: "절친들의 위로방식" },
+        { file: "https://drive.google.com/file/d/0015/preview", description: "음식으로 장난치면 안돼요" },
+        { file: "https://drive.google.com/file/d/0016/preview", description: "역사적으로 흘러가듯 가~" },
+        { file: "https://drive.google.com/file/d/0017/preview", description: "아빠는 엄마 못이김 ㅎ" },
+        { file: "https://drive.google.com/file/d/0018/preview", description: "사장이 빌런" },
+        { file: "https://drive.google.com/file/d/0019/preview", description: "이런게 리더의 덕목" },
+        { file: "https://drive.google.com/file/d/0020/preview", description: "서로 지 할말만 하는 대화" }
+    ];
+
+    let videoIndex = 0;
+    function loadVideo() {
+        document.getElementById("videoPlayer").src = videoFiles[videoIndex].file;
+        document.getElementById("answerBox").innerHTML = "정답: ???";
+        document.getElementById("userAnswer").value = "";
+
+    }
+
+    function nextVideo() {
+        if (videoIndex < videoFiles.length - 1) {
+            videoIndex++;
+            loadVideo();
+        } else {
+            alert("마지막 영상입니다.");
+        }
+    }
+
+    function prevVideo() {
+        if (videoIndex > 0) {
+            videoIndex--;
+            loadVideo();
+        } else {
+            alert("첫 번째 영상입니다.");
+        }
+    }
+
+    loadVideo();
+</script>
+</body>
+</html>
